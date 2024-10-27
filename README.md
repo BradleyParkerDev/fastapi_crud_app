@@ -87,11 +87,13 @@ fastapi_crud_app/
    alembic revision --autogenerate -m "Initial migration"
    ```
 
-
 ## Scripts
 
-- **`python main.py`**: Starts the server.
+**Start the server:**
 
+   ```bash
+   python main.py
+   ```
 
 ## Packages
 
