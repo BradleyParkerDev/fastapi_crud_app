@@ -1,0 +1,6 @@
+
+#Install packages
+pip install "fastapi[standard]" alembic psycopg2-binary bcrypt pyjwt
+
+#Create the alembic.ini file and migrations directory
+alembic init app/database/migrations

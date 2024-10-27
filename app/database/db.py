@@ -49,4 +49,3 @@ def init_db():
     print("Tables created successfully!")
 
 
-
