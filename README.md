@@ -1,5 +1,8 @@
 # FastAPI CRUD App
 
+A FastAPI-based CRUD application with a PostgreSQL database, session-based authentication, and a project structure that is scalable and easy to maintenance.
+
+
 ## Overview
 
 This FastAPI CRUD application is designed to provide a foundational structure for building RESTful APIs with a modern backend stack. The app includes essential CRUD functionality (Create, Read, Update, Delete) with a PostgreSQL database, SQLAlchemy for ORM, and Alembic for database migrations. The project is intended for use as an API-only backend, without any server-rendered HTML templates.
@@ -73,21 +76,26 @@ fastapi_crud_app/
    python -m venv venv
    ```
 
+4. **Activate the virtual envirionment:**
 
-4. **Install the required packages:**
+   ```bash
+   source ./venv/bin/activate 
+   ```
+
+5. **Install the required packages:**
 
    ```bash
    pip install -r requirements.txt
    ```
 
 
-5. **Generate your first database migration:**
+6. **Generate your first database migration:**
 
    ```bash
    alembic revision --autogenerate -m "Initial migration"
    ```
 
-6. **Upgrade the database with the migration:**
+7. **Upgrade the database with the migration:**
 
    ```bash
    alembic upgrade head
