@@ -87,6 +87,12 @@ fastapi_crud_app/
    alembic revision --autogenerate -m "Initial migration"
    ```
 
+6. **Upgrade the database with the migration:**
+
+   ```bash
+   alembic upgrade head
+   ```
+
 ## Scripts
 
 **`Start the server` :**
