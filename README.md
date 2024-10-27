@@ -89,7 +89,7 @@ fastapi_crud_app/
 
 ## Scripts
 
-**Start the server:**
+**`Start the server`:**
 
    ```bash
    python main.py
