@@ -97,7 +97,7 @@ fastapi_crud_app/
 
 ## Packages
 
-This project leverages a variety of libraries and tools to handle different aspects of API development, database management, security, and more. Below is an overview of the main packages:
+This project leverages a variety of libraries and tools to handle different aspects of API development, database management, security, and more. Below is an overview of each installed package:
 
 - **Alembic** (`alembic==1.13.3`): Handles database migrations, allowing you to version control schema changes with ease.
 
