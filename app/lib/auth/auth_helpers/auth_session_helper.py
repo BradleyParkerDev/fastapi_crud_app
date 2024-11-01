@@ -19,7 +19,9 @@ class AuthSessionHelper:
         db.session.add(user_session)
         
         db.session.commit()
-        print(f"session_id: {user_session.session_id}")
+        
+        # db.session.close()
+        print(f"\nUser session created!!!\n")
         
         return user_session
         

@@ -49,21 +49,34 @@ class AuthUtility:
     
     # Middleware - Authorize User
     async def authorize_user(self, request: Request, call_next):
-        print("Authorization Middleware!!!")
+        print("\nAuthorization Middleware!!!\n")
         
         # Get the session token from cookies
         session_token = request.cookies.get('session_cookie')
         
         # If there is a session decode its token
         if session_token:
-            print(f"session_token: \n{session_token}")
+            print(f"session_token:\n{session_token}\n")
             
             # Decode the token (assuming token verification method is async)
             decoded_token = self.token.verify_session_token(session_token)
             
-            print(f"decoded_token: \n{decoded_token}")
-            # Perform the rest of your authorization logic here...
-            # For now, we're assuming the user is authorized for demo purposes.
+            
+            
+            if "user_id" in decoded_token:
+                print("Authenticated User:")
+                print(f"user_id: {decoded_token['user_id']}")
+                print(f"session_id: {decoded_token['session_id']}") 
+                print(f"start_time: {decoded_token['start_time']}")
+                print(f"expiration_time: {decoded_token['expiration_time']}\n")
+                print("\n")
+            else:
+                print(f"Guest User:")
+                print(f"session_id: {decoded_token['session_id']}")   
+                print(f"start_time: {decoded_token['start_time']}")
+                print(f"expiration_time: {decoded_token['expiration_time']}\n")
+                print("\n")  
+                
             
             # Store the decoded token in request.state
             request.state.decoded_token = decoded_token

@@ -2,7 +2,6 @@
 
 A FastAPI-based CRUD application with a PostgreSQL database, session-based authentication, and a project structure that is scalable and easy to maintenance.
 
-
 ## Overview
 
 This FastAPI CRUD application is designed to provide a foundational structure for building RESTful APIs with a modern backend stack. The app includes essential CRUD functionality (Create, Read, Update, Delete) with a PostgreSQL database, SQLAlchemy for ORM, and Alembic for database migrations. The project is intended for use as an API-only backend, without any server-rendered HTML templates.
