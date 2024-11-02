@@ -1,6 +1,7 @@
 import os
 import jwt
 from jwt import ExpiredSignatureError, InvalidTokenError
+from datetime import datetime, timedelta
 
 class AuthTokenHelper:
     # Access an environment variable for the secret key
@@ -8,15 +9,19 @@ class AuthTokenHelper:
         self.jwt_secret_key = os.getenv('SECRET_KEY')
     
     # Generate a session token
+
     def generate_session_token(self, session_payload):
+
         # Create the token using HS256 algorithm
         session_token = jwt.encode(session_payload, self.jwt_secret_key, algorithm="HS256")
         
+        # Print token type based on presence of user_id
         user_id = session_payload.get('user_id')
         if user_id:  
-            print(f"authenticated_session_token: {session_token}")
+            print(f"authenticated_session_token:\n{session_token}")
         else:
-            print(f"guest_session_token: {session_token}")
+            print(f"guest_session_token:\n{session_token}")
+        
         return session_token
     
     # Verify and decode the session token

@@ -47,67 +47,64 @@ class AuthUtility:
         
     
     
-    # Middleware - Authorize User
     async def authorize_user(self, request: Request, call_next):
         print("\nAuthorization Middleware!!!\n")
         
         # Get the session token from cookies
         session_token = request.cookies.get('session_cookie')
         
-        # If there is a session decode its token
+        # If there is a session, decode its token
         if session_token:
             print(f"session_token:\n{session_token}\n")
             
             # Decode the token (assuming token verification method is async)
-            decoded_token = self.token.verify_session_token(session_token)
+            decoded_token = await self.token.verify_session_token(session_token)
             
-            
-            
+            # Check if user_id is present in decoded_token to determine if the user is authenticated
             if "user_id" in decoded_token:
                 print("Authenticated User:")
                 print(f"user_id: {decoded_token['user_id']}")
-                print(f"session_id: {decoded_token['session_id']}") 
+                print(f"session_id: {decoded_token['session_id']}")
                 print(f"start_time: {decoded_token['start_time']}")
-                print(f"expiration_time: {decoded_token['expiration_time']}\n")
-                print("\n")
+                print(f"exp: {decoded_token['exp']}\n")
             else:
-                print(f"Guest User:")
-                print(f"session_id: {decoded_token['session_id']}")   
+                print("Guest User:")
+                print(f"session_id: {decoded_token['session_id']}")
                 print(f"start_time: {decoded_token['start_time']}")
-                print(f"expiration_time: {decoded_token['expiration_time']}\n")
-                print("\n")  
-                
+                print(f"exp: {decoded_token['exp']}\n")
             
-            # Store the decoded token in request.state
+            # Store the decoded token in request.state for later use in the request lifecycle
             request.state.decoded_token = decoded_token
             
-            response = await call_next(request) 
-            
-
-              
-        # If there is not a token, create one
+            # Proceed to the next middleware or endpoint
+            response = await call_next(request)
+        
+        # If there is no session token, create a guest session
         else:
-
             guest_session = self.session.create_user_session()
             
-            # create dict with session information
+            # Create dictionary with session information, ensuring primitive types
             guest_session_payload = {
-                "session_id": str(guest_session.session_id),
-                "start_time": guest_session.start_time.isoformat(),  # Convert datetime to string
-                "expiration_time": guest_session.expiration_time.isoformat()  # Convert datetime to string
-
-            }
+                "session_id": guest_session['session_id'],
+                "start_time": guest_session['start_time'],
+                "exp": guest_session['exp']
+            }            
             
+            
+            
+            
+            # # Create dictionary with session information, ensuring primitive types
+            # guest_session_payload = {
+            #     "session_id": str(guest_session.session_id),
+            #     "start_time": guest_session.start_time.isoformat(),
+            #     "exp": guest_session.expiration_time.isoformat()
+            # }
+            
+            # Generate a guest session token
             guest_session_token = self.token.generate_session_token(guest_session_payload)
-
-            # Create a response and set a cookie
-            # response = Response()
-                    # Continue processing the request if the user is authorized
-            response = await call_next(request)  
-            response.set_cookie(key="session_cookie", value = guest_session_token, httponly=True)
             
-
+            # Process request and set the guest session cookie
+            response = await call_next(request)
+            response.set_cookie(key="session_cookie", value=guest_session_token, httponly=True)
         
         return response
-               
-            

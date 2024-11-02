@@ -43,7 +43,7 @@ async def login_user_controller(request:Request, response:Response):
             "user_id": str(authenticated_session.user_id),  # Make sure values are serializable
             "session_id": str(authenticated_session.session_id),
             "start_time": authenticated_session.start_time.isoformat(),  # Convert datetime to string
-            "expiration_time": authenticated_session.expiration_time.isoformat()  # Convert datetime to string
+            "exp": authenticated_session.expiration_time.isoformat()  # Convert datetime to string
         }
         
         # store session information in JSON Web Token as its payload
@@ -54,7 +54,7 @@ async def login_user_controller(request:Request, response:Response):
     
     
     # Set "session_cookie" in response, with "authenticated_session_token" as its value 
-    response.set_cookie(key="session_cookie", value = authenticated_session_token, httponly=True)  
+    response.set_cookie(key="session_cookie", value = authenticated_session_token, httponly=True, expires=authenticated_session.expiration_time)  
     
          
      # redirect to authenticated_user_page
