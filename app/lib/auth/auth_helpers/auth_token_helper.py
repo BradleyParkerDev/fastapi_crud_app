@@ -6,15 +6,22 @@ from datetime import datetime, timedelta
 class AuthTokenHelper:
     # Access an environment variable for the secret key
     def __init__(self):
-        self.jwt_secret_key = os.getenv('SECRET_KEY')
-    
+        # self.jwt_secret_key = os.getenv('SECRET_KEY')
+        self.jwt_secret_key = 'SECRET_KEY'
+
+                
+                
+            # Ensure SECRET_KEY is set
+        if not self.jwt_secret_key:
+            raise ValueError("SECRET_KEY environment variable is not set.")
     # Generate a session token
 
     def generate_session_token(self, session_payload):
 
         # Create the token using HS256 algorithm
         session_token = jwt.encode(session_payload, self.jwt_secret_key, algorithm="HS256")
-        
+        print(f"JWT Secret Key: {self.jwt_secret_key}")     
+           
         # Print token type based on presence of user_id
         user_id = session_payload.get('user_id')
         if user_id:  

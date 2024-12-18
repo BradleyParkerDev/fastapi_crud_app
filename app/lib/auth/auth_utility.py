@@ -58,21 +58,25 @@ class AuthUtility:
             print(f"session_token:\n{session_token}\n")
             
             # Decode the token (assuming token verification method is async)
-            decoded_token = await self.token.verify_session_token(session_token)
+            decoded_token = self.token.verify_session_token(session_token)
             
-            # Check if user_id is present in decoded_token to determine if the user is authenticated
-            if "user_id" in decoded_token:
-                print("Authenticated User:")
-                print(f"user_id: {decoded_token['user_id']}")
-                print(f"session_id: {decoded_token['session_id']}")
-                print(f"start_time: {decoded_token['start_time']}")
-                print(f"exp: {decoded_token['exp']}\n")
+            if decoded_token:
+                # Proceed with authenticated user
+                if "user_id" in decoded_token:
+                    print("Authenticated User:")
+                    print(f"user_id: {decoded_token['user_id']}")
+                    print(f"session_id: {decoded_token['session_id']}")
+                    print(f"start_time: {decoded_token['start_time']}")
+                    print(f"exp: {decoded_token['exp']}\n")
+                else:
+                    print("Guest User:")
+                    print(f"session_id: {decoded_token['session_id']}")
+                    print(f"start_time: {decoded_token['start_time']}")
+                    print(f"exp: {decoded_token['exp']}\n")
+                request.state.decoded_token = decoded_token
             else:
-                print("Guest User:")
-                print(f"session_id: {decoded_token['session_id']}")
-                print(f"start_time: {decoded_token['start_time']}")
-                print(f"exp: {decoded_token['exp']}\n")
-            
+                print("Invalid or expired token")
+                            
             # Store the decoded token in request.state for later use in the request lifecycle
             request.state.decoded_token = decoded_token
             
@@ -89,16 +93,6 @@ class AuthUtility:
                 "start_time": guest_session['start_time'],
                 "exp": guest_session['exp']
             }            
-            
-            
-            
-            
-            # # Create dictionary with session information, ensuring primitive types
-            # guest_session_payload = {
-            #     "session_id": str(guest_session.session_id),
-            #     "start_time": guest_session.start_time.isoformat(),
-            #     "exp": guest_session.expiration_time.isoformat()
-            # }
             
             # Generate a guest session token
             guest_session_token = self.token.generate_session_token(guest_session_payload)

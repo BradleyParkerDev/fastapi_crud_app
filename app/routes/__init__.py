@@ -1,3 +1,3 @@
 from .auth_routes import AuthRoutes
-from .page_routes import PageRoutes
+from .web_routes import WebRoutes
 from .user_routes import UserRoutes

@@ -8,26 +8,31 @@ class AuthSessionHelper:
     def create_user_session(self, user_id=None):
         db = DB()
         db.initialize()
-        
+
         try:
-            user_session = UserSession()
-            
-            if user_id:
-                user_session.user_id = user_id
-            
+            # Create a new UserSession with the provided user_id (or None for guest session)
+            user_session = UserSession(user_id=user_id)
+
+            # Add and commit the new session to the database
             db.session.add(user_session)
             db.session.commit()
-            
-            # Extract needed data before closing the session
+
+            # Extract session data after committing to ensure values are set
             session_data = {
+                "user_id": str(user_session.user_id) if user_session.user_id else "",  # Blank if guest session
                 "session_id": str(user_session.session_id),
-                "start_time": user_session.start_time.isoformat(),  # Convert to ISO string
-                "exp": user_session.expiration_time.isoformat()  # Convert to ISO string
+                "start_time": user_session.start_time.isoformat(),
+                "expiration_time": user_session.expiration_time.isoformat()
             }
-            
-            print(f"\nUser session created!\n")
+
+            # Print message based on session type
+            if user_id:
+                print("\nUser session created!\n")
+            else:
+                print("\nGuest session created!\n")
+
             return session_data
-        
+
         finally:
             db.close()
 

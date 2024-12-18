@@ -3,7 +3,7 @@ from app.controllers import home_page_controller
 
 
 
-class PageRoutes:
+class WebRoutes:
     def __init__(self):
         self.router = APIRouter()
         

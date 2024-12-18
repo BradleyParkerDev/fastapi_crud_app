@@ -11,8 +11,8 @@ async def logout_user_controller( request:Request, response:Response):
     session_id = decoded_token['session_id']
 
 
-    auth_util = AuthUtility()
-    auth_util.session.delete_user_session(session_id)
+    auth = AuthUtility()
+    auth.session.delete_user_session(session_id)
     
     response.delete_cookie('session_cookie')
     # redirect to index page
