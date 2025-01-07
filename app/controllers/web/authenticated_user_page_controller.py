@@ -14,13 +14,15 @@ DEBUG = os.getenv("DEBUG")
 layout = LayoutUtility()
 
 
-async def home_page_controller(request:Request, response:Response):
+async def authenticated_user_page_controller(request:Request, response:Response, id:str):
 
-    greeting = "Hello, World!!! \n This is a FastAPI CRUD App!!!"
+    heading = "This is a authenticated user page!!!"
+    message = (f"User Name:{id}")
 
-    return templates.TemplateResponse("pages/home_page.html",{
+    return templates.TemplateResponse("pages/authenticated_user_page.html",{
         "request": request,  # Pass the request object
-        "greeting": greeting,
+        "heading": heading,
+        "message": message,
         "DEBUG": DEBUG,
         "hotreload": layout.arel.hotreload
     }) 

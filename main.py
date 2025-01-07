@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.cors import CORSMiddleware  
-from app.routes import WebRoutes, UsersRoutes
+from app.routes import WebRoutes, UserRoutes
 from app.lib import AuthUtility, LayoutUtility
 from starlette.routing import WebSocketRoute
 import uvicorn
@@ -12,7 +12,7 @@ import uvicorn
 
 # Load environment variables
 load_dotenv()
-FASTAPI_PORT = int(os.getenv("FASTAPI_PORT", 5001))
+FASTAPI_PORT = int(os.getenv("FASTAPI_PORT", 4001))
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 
@@ -28,8 +28,8 @@ app = FastAPI(lifespan=layout.arel.lifespan) # Lifespan handler is attached to F
 web_routes = WebRoutes()
 app.include_router(web_routes.setup_routes())
 
-users_routes = UsersRoutes()
-app.include_router(users_routes.setup_routes())
+user_routes = UserRoutes()
+app.include_router(user_routes.setup_routes())
 
 
 
@@ -66,6 +66,7 @@ app.router.routes.append(WebSocketRoute("/hot-reload", layout.arel.hotreload, na
 
 # Start Server
 if __name__ == "__main__":
+    # uvicorn main:app --host 127.0.0.1 --port 4001 --reload
     uvicorn.run("main:app", host="127.0.0.1", port=FASTAPI_PORT, reload=DEBUG)
 
 
