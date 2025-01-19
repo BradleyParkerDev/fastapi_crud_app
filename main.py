@@ -20,8 +20,12 @@ DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 auth = AuthUtility()
 layout = LayoutUtility()
 
-# Create FastAPI App
-app = FastAPI(lifespan=layout.arel.lifespan) # Lifespan handler is attached to FastAPI
+# Create FastAPI App - Parameters for OpenAPI and Arel
+app = FastAPI(title=os.getenv("APP_NAME"),
+              docs_url=None if os.getenv("DEBUG") == "false" else "/docs",
+              redoc_url=None if os.getenv("DEBUG") == "false" else "/redoc",
+              openapi_url=None if os.getenv("DEBUG") == "false" else "/openapi.json",
+              lifespan=layout.arel.lifespan) # Lifespan handler is attached to FastAPI
 
 
 # Routes
