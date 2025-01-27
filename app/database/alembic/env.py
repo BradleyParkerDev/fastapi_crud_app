@@ -1,18 +1,20 @@
 import os
 from dotenv import load_dotenv
-from logging.config import fileConfig
-from app.database.models.model_base_class import Base
-from app.database.models.users import User  
-from app.database.models.user_sessions import UserSession
 
+# model imports - models need to be imported for migrations to work
+from app.database.models import Base, UserSession, User
+
+# imports already here
+from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
 
 
 
-# Alembic Config object, provides access to .ini file
+# Alembic config object provides access to .ini file
 config = context.config
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -20,21 +22,23 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 
-# Load DATABASE_URL environment variable
+# Load DATABASE_URL from environment variables
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
+print(DATABASE_URL)
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL variable not set!!!")
 else:
     config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
+print(f"Using database URL: {config.get_main_option('sqlalchemy.url')}")
 
-# Metadata of all ORM models used by Alembic for schema generation
+# Metadata from all ORM models used by alembic for schema generation
 target_metadata = Base.metadata
 
 
 
-# Did not add to this
+#  Did not add to this
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
