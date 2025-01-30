@@ -15,8 +15,14 @@ class AuthTokenHelper:
             raise ValueError("JWT_SECRET_KEY environment variable not set!!!")
         
     def generate_session_token(self, session_payload):
+        # Change exp to integer
+        print(session_payload['exp'])
+        session_payload['exp'] = int(datetime.fromisoformat(session_payload['exp']).timestamp())
+
+        # Create token
         session_token = jwt.encode(session_payload, self.jwt_secret_key, algorithm="HS256")
-        user_id = session_payload.get('user_id')
+
+        user_id = session_payload.get('user_id', None)
         if user_id:
             print(f"authenticated_session_token:\n{session_token}")
         else:
@@ -25,11 +31,14 @@ class AuthTokenHelper:
     
     def verify_session_token(self, session_token):
         try:
-            decoded_token = jwt.decode(session_token, self.jwt_secret_key, algorithms="HS256")
+            decoded_token = jwt.decode(session_token, self.jwt_secret_key, algorithms=["HS256"])  # ✅ Keep this as a LIST            
             return decoded_token
-        except ExpiredSignatureError:
+
+        except ExpiredSignatureError as e:
             print("Token has expired!!!")
-            return None
-        except InvalidTokenError:
+            print(f"Error: {e}")            
+            return e
+        except InvalidTokenError as e:
             print("Invalid token!!!")
-            return None
+            print(f"Error: {e}")
+            return e

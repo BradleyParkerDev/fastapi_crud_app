@@ -10,8 +10,10 @@ class UserSession(Base):
     session_id = Column(pgUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(pgUUID(as_uuid=True), ForeignKey('users.user_id',ondelete="CASCADE"), nullable=True)
     start_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    expiration_time = Column(DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(days=7))
+    # expiration_time = Column(DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(days=7))
+    expiration_time = Column(DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(minutes=1))
+
 
     @staticmethod
     def get_expiration_time():
-        return datetime.now(timezone.utc) + timezone(days=7)
+        return datetime.now(timezone.utc) + timedelta(days=7)

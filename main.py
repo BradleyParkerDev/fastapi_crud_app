@@ -37,7 +37,6 @@ user_routes = UserRoutes()
 app.include_router(user_routes.setup_routes())
 
 
-
 # Middleware
 app.add_middleware(GZipMiddleware) # For file compression
 
@@ -63,6 +62,7 @@ app.add_middleware( # CORS Middleware - currently allows everything
 
 # Mount static files in public directory
 app.mount("/public", StaticFiles(directory="public"), name="public")
+
 
 # Hot reloading websocket
 app.router.routes.append(WebSocketRoute("/hot-reload", layout.arel.hotreload, name="hot-reload"))

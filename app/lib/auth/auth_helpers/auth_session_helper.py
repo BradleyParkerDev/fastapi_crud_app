@@ -1,10 +1,11 @@
 from app.database.models import UserSession
 from app.database.db import DB
 from sqlalchemy.exc import NoResultFound
+from datetime import datetime, timezone
 
 class AuthSessionHelper:
     
-    # Create session
+    # Create Session
     def create_user_session(self, user_id=None):
         db = DB()
         db.initialize()
@@ -23,21 +24,39 @@ class AuthSessionHelper:
                 "start_time": user_session.start_time.isoformat(),
                 "expiration_time": user_session.expiration_time.isoformat()
             }
-
             if user_id:
                 print("\nAuthenticated user session created!!!\n")
             else:
                 print("\nGuest user session created!!!\n")
-
         finally:
             db.close()
+        
+        return session_data
+    # Get Session
+    def get_user_session(self,session_id):
+        db = DB()
+        db.initialize()
+        try:
+            found_session = db.session.query(UserSession).filter_by(session_id=session_id).one()
+            expiration_time = found_session.expiration_time
+      
+            # Ensure expiration_time is timezone-aware
+            if expiration_time.tzinfo is None:
+                expiration_time = expiration_time.replace(tzinfo=timezone.utc)
 
+            now = datetime.now(timezone.utc)  # Always use timezone-aware datetime
+            is_expired = expiration_time < now
+            print(f"Current Time: {now}, Expiration Time: {expiration_time}, is_expired: {is_expired}")
 
-    # Delete session
+            print(f"is_expired: {is_expired}")
+        except NoResultFound as e:
+            raise ValueError(e)
+        finally:
+            db.close()
+    # Delete Session
     def delete_user_session(self, session_id):
         db = DB()
         db.initialize()
-
         try:
             # Query the session and delete it
             session_to_delete = db.session.query(UserSession).filter_by(session_id=session_id).one()
