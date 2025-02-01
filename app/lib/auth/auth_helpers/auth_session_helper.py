@@ -32,6 +32,7 @@ class AuthSessionHelper:
             db.close()
         
         return session_data
+    
     # Get Session
     def get_user_session(self,session_id):
         db = DB()
@@ -53,6 +54,7 @@ class AuthSessionHelper:
             raise ValueError(e)
         finally:
             db.close()
+
     # Delete Session
     def delete_user_session(self, session_id):
         db = DB()
