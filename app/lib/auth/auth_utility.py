@@ -1,6 +1,7 @@
 import bcrypt
 from fastapi import Request, Response
 from .auth_helpers import AuthSessionHelper, AuthTokenHelper
+from app.lib.exc import UserSessionExpired
 
 class AuthUtility():
     def __init__(self):
@@ -64,34 +65,35 @@ class AuthUtility():
                 decoded_token = self.token.verify_session_token(session_token)
                 if decoded_token:
                     # Check database for session
-                    result = self.session.get_user_session(decoded_token['session_id']) #I want to throw an error and catch it in exception below
-                    print(f"session_type: {decoded_token['session_type']}")
-                    print(f"user_id: {decoded_token.get('user_id') or 'N/A'}")
-                    print(f"session_id: {decoded_token['session_id']}")
-                    print(f"start_time: {decoded_token['start_time']}")
-                    print(f"exp: {decoded_token['exp']}\n")
+                    try:
+                        found_session = self.session.get_user_session(decoded_token['session_id']) #I want to throw an error and catch it in exception below
+                        print(found_session.session_id)
+                        print(f"session_type: {decoded_token['session_type']}")
+                        print(f"user_id: {decoded_token.get('user_id') or 'N/A'}")
+                        print(f"session_id: {decoded_token['session_id']}")
+                        print(f"start_time: {decoded_token['start_time']}")
+                        print(f"exp: {decoded_token['exp']}\n")
+                        request.state.session_data = decoded_token                              
+                    except UserSessionExpired as e:
+                        print(f"Error: {e}\n")
+                        print("Creating guest session and token...")
+                        guest_session_data = self.create_guest_session_and_token()
 
-                request.state.decoded_token = decoded_token
             # If session not found, an error is thrown and a guest session is created
-            except ValueError as e:
-                print(f"Error finding session: {e}\n")
+            except (ValueError, Exception) as e:
+                print(f"Error: {e}\n")
                 print("Creating guest session and token...")
                 guest_session_data = self.create_guest_session_and_token()
-                session_token = guest_session_data['token']
-                request.state.decoded_token = guest_session_data['payload']
-            except Exception as e:
-                print(f"Error decoding token: {e}\n")
-                print("Creating guest session and token...")
-                guest_session_data = self.create_guest_session_and_token()
-                session_token = guest_session_data['token']
-                request.state.decoded_token = guest_session_data['payload']
+                
         else:
             # Create a guest_session
             print("session_token not found in cookie...")
-            print("Creating guest session and token...")
             guest_session_data = self.create_guest_session_and_token()
+
+        # If a guest session and token were created, add its data to the request
+        if guest_session_data:
             session_token = guest_session_data['token']
-            request.state.decoded_token = guest_session_data['payload']
+            request.state.session_data = guest_session_data['payload']
 
         response = await call_next(request) 
         response.set_cookie(key="session_cookie", value=session_token,httponly =True)

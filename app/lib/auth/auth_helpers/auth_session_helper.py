@@ -1,6 +1,7 @@
 from app.database.models import UserSession
 from app.database.db import DB
 from sqlalchemy.exc import NoResultFound
+from app.lib.exc import UserSessionExpired
 from datetime import datetime, timezone
 
 class AuthSessionHelper:
@@ -47,9 +48,14 @@ class AuthSessionHelper:
 
             now = datetime.now(timezone.utc)  # Always use timezone-aware datetime
             is_expired = expiration_time < now
+            
             print(f"Current Time: {now}, Expiration Time: {expiration_time}, is_expired: {is_expired}")
-
-            print(f"is_expired: {is_expired}")
+            if is_expired:
+                db.session.delete(found_session)
+                db.session.commit()
+                db.close()
+                raise UserSessionExpired
+            return found_session
         except NoResultFound as e:
             raise ValueError(e)
         finally:
