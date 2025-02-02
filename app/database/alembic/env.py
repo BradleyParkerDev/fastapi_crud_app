@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 
 # model imports - models need to be imported for migrations to work
-from app.database.models import Base, UserSession, User
+from app.database.models import Base, session_cron_jobs, UserSession, User
 
 # imports already here
 from logging.config import fileConfig

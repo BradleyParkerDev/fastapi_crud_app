@@ -1,11 +1,16 @@
-from app.database.models import UserSession
+from app.database.models import SessionCronJob, UserSession 
 from app.database.db import DB
-from sqlalchemy.exc import NoResultFound
 from app.lib.exc import UserSessionExpired
+from app.lib.logger import get_logger
+from sqlalchemy.exc import NoResultFound
+
 from datetime import datetime, timezone
 
 class AuthSessionHelper:
-    
+    def __init__(self):
+        self.user_logger = get_logger("user")
+        self.cron_logger = get_logger("cron")
+
     # Create Session
     def create_user_session(self, user_id=None):
         db = DB()
@@ -76,5 +81,6 @@ class AuthSessionHelper:
             return False
 
     # Cron job - delete expired sessions
-    def handle_expired_user_sessions_cron_job():
+    def handle_expired_user_sessions_cron(self):
+        self.cron_logger.info("10 sessions deleted!!!")
         return 

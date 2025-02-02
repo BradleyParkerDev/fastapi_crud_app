@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get log directory from environment variable (fallback to "logs" if not set)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # Moves up from `app/lib/`
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # Ensures base directory is project root
 LOG_DIR = os.path.join(BASE_DIR, os.getenv("LOG_DIR", "logs"))  # Ensure logs stay inside project folder
 
 # Ensure the logs directory exists

@@ -21,6 +21,10 @@ auth = AuthUtility()
 layout = LayoutUtility()
 
 
+# Handle expired user sessions
+auth.session.handle_expired_user_sessions_cron()
+
+
 # Create FastAPI App - Parameters for OpenAPI and Arel
 app = FastAPI(title=os.getenv("APP_NAME"),
               docs_url=None if os.getenv("DEBUG") == "false" else "/docs",
