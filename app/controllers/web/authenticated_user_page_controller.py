@@ -16,7 +16,7 @@ layout = LayoutUtility()
 
 async def authenticated_user_page_controller(request:Request, response:Response, id:str):
 
-    heading = "This is a authenticated user page!!!"
+    heading = "This is an authenticated user page!!!"
     message = (f"User Name:{id}")
 
     return templates.TemplateResponse("pages/authenticated_user_page.html",{
