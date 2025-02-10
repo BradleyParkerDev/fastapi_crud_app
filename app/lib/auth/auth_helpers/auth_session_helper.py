@@ -82,5 +82,29 @@ class AuthSessionHelper:
 
     # Cron job - delete expired sessions
     def handle_expired_user_sessions_cron(self):
-        self.cron_logger.info("10 sessions deleted!!!")
-        return 
+        db = DB()
+        db.initialize()
+        try:
+            now = datetime.now(timezone.utc)
+
+            # Find expired sessions
+            expired_sessions = db.session.query(UserSession).filter(UserSession.expiration_time < now).all()
+            num_deleted = len(expired_sessions)
+
+            if num_deleted > 0:
+                for session in expired_sessions:
+                    db.session.delete(session)
+                db.session.commit()
+
+            # Log the cron job execution
+            self.cron_logger.info(f"{num_deleted} sessions deleted!!!")
+
+            # Store in the database
+            cron_job = SessionCronJob(sessions_deleted=num_deleted)
+            db.session.add(cron_job)
+            db.session.commit()
+
+        except Exception as e:
+            self.cron_logger.error(f"Error running cron job: {e}")
+        finally:
+            db.close()
