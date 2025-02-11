@@ -54,7 +54,12 @@ class AuthUtility():
 
     async def authorize_user(self, request: Request, call_next):
         print("\nAuthorization Middleware!!!")
-
+        
+        # Ensure it's a real HTTP request
+        if request.scope["type"] != "http":
+            print("Http Request!")
+            return await call_next(request)
+        
         # Retrieve session token from the request
         session_token = request.cookies.get("session_cookie")
         guest_session_data = None  # Ensure it's always defined
@@ -98,55 +103,3 @@ class AuthUtility():
             response.set_cookie(key="session_cookie", value=session_token, httponly=True)
 
         return response
-
-
-
-
-
-    # async def authorize_user(self, request:Request, call_next):
-    #     print("\nAuthorization Middleware!!!")
-
-    #     # Retrieve session token from cookie
-    #     session_token = request.cookies.get("session_cookie")
-    #     guest_session_data = None  # Ensure it's always defined
-
-    #     if session_token:
-    #         print(f"\nsession_token:\n{session_token}\n")
-    #         # Try decoding token, if it fails to decode create a guest session
-    #         try:
-    #             decoded_token = self.token.verify_session_token(session_token)
-    #             if decoded_token:
-    #                 # Check database for session
-    #                 try:
-    #                     found_session = self.session.get_user_session(decoded_token['session_id']) #I want to throw an error and catch it in exception below
-    #                     print(found_session.session_id)
-    #                     print(f"session_type: {decoded_token['session_type']}")
-    #                     print(f"user_id: {decoded_token.get('user_id') or 'N/A'}")
-    #                     print(f"session_id: {decoded_token['session_id']}")
-    #                     print(f"start_time: {decoded_token['start_time']}")
-    #                     print(f"exp: {decoded_token['exp']}\n")
-    #                     request.state.session_data = decoded_token                              
-    #                 except UserSessionExpired as e:
-    #                     print(f"Error: {e}\n")
-    #                     print("Deleting user session and token...")
-    #                     guest_session_data = self.create_guest_session_and_token()
-
-    #         # If session not found, an error is thrown and a guest session is created
-    #         except (ValueError, Exception) as e:
-    #             print(f"Error: {e}\n")
-    #             print("Creating guest session and token...")
-    #             guest_session_data = self.create_guest_session_and_token()
-                
-    #     else:
-    #         # Create a guest_session
-    #         print("session_token not found in cookie...")
-    #         guest_session_data = self.create_guest_session_and_token()
-
-    #     # If a guest session and token were created, add its data to the request
-    #     if guest_session_data:
-    #         session_token = guest_session_data['token']
-    #         request.state.session_data = guest_session_data['payload']
-
-    #     response = await call_next(request) 
-    #     response.set_cookie(key="session_cookie", value=session_token,httponly =True)
-    #     return response 
