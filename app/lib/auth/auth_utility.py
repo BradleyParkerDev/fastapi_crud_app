@@ -51,13 +51,31 @@ class AuthUtility():
         return {"token": guest_session_token, "payload": token_payload}
 
     # Middleware 
-
     async def authorize_user(self, request: Request, call_next):
-        print("\nAuthorization Middleware!!!")
+
+        # Extract the request path
+        request_path = request.url.path
         
+        session_token = request.cookies.get("session_cookie")
+
+        if session_token:
+            print("Cookie found:", session_token)
+        else:
+            print("No session_cookie found in the request")
+
+
+        # I need to add to this that if reload is happend too
+        # if request_path == "/":
+        #     print(f"Skipping authentication for: {request_path}")
+        #     return await call_next(request)
+        
+        
+        print(f"Running authentication for: {request_path}")
+        
+        print("\nAuthorization Middleware!!!")
         # Ensure it's a real HTTP request
         if request.scope["type"] != "http":
-            print("Http Request!")
+            print("Not Http Request!")
             return await call_next(request)
         
         # Retrieve session token from the request
@@ -103,3 +121,4 @@ class AuthUtility():
             response.set_cookie(key="session_cookie", value=session_token, httponly=True)
 
         return response
+ 

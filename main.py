@@ -22,8 +22,9 @@ layout = LayoutUtility()
 
 
 # Handle expired user sessions
-auth.session.handle_expired_user_sessions_cron()
-
+# I need to add a scheduler to only run the cron at specified times, so it does not run on each reload.
+# I want it to run every 10 minutes after the hour; :00, :10, etc.
+# auth.session.handle_expired_user_sessions_cron() 
 
 # Create FastAPI App - Parameters for OpenAPI and Arel
 app = FastAPI(title=os.getenv("APP_NAME"),
@@ -71,6 +72,7 @@ app.mount("/public", StaticFiles(directory="public"), name="public")
 # Hot reloading websocket
 app.router.routes.append(WebSocketRoute("/hot-reload", layout.arel.hotreload, name="hot-reload"))
 
+print('Server just reloaded...')
 
 # Start Server
 if __name__ == "__main__":
