@@ -53,31 +53,8 @@ class AuthUtility():
     # Middleware 
     async def authorize_user(self, request: Request, call_next):
 
-        # Extract the request path
-        request_path = request.url.path
-        
-        session_token = request.cookies.get("session_cookie")
-
-        if session_token:
-            print("Cookie found:", session_token)
-        else:
-            print("No session_cookie found in the request")
-
-
-        # I need to add to this that if reload is happend too
-        # if request_path == "/":
-        #     print(f"Skipping authentication for: {request_path}")
-        #     return await call_next(request)
-        
-        
-        print(f"Running authentication for: {request_path}")
-        
         print("\nAuthorization Middleware!!!")
-        # Ensure it's a real HTTP request
-        if request.scope["type"] != "http":
-            print("Not Http Request!")
-            return await call_next(request)
-        
+
         # Retrieve session token from the request
         session_token = request.cookies.get("session_cookie")
         guest_session_data = None  # Ensure it's always defined
@@ -92,7 +69,7 @@ class AuthUtility():
                         # Check if session exists in the database
                         found_session = self.session.get_user_session(decoded_token['session_id'])
                         print(f"session_type: {decoded_token['session_type']}")
-                        print(f"user_id: {decoded_token.get('user_id') or 'N/A'}")
+                        print(f"user_id: {decoded_token.get(' user_id') or 'N/A'}")
                         print(f"session_id: {decoded_token['session_id']}")
                         print(f"start_time: {decoded_token['start_time']}")
                         print(f"exp: {decoded_token['exp']}\n")
@@ -107,8 +84,8 @@ class AuthUtility():
                 print(f"Error: {e}\n")
                 session_token = None
 
-        # If there's no valid session token, only create a guest session **if a real request is made**
-        if not session_token and request.method in ["GET", "POST", "PUT", "DELETE"]:
+        # If there's no valid session token
+        if not session_token:
             print("session_token not found or invalid...")
             guest_session_data = self.create_guest_session_and_token()
             session_token = guest_session_data['token']
