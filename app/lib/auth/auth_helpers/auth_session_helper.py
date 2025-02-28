@@ -1,3 +1,4 @@
+import os;
 from app.database.models import SessionCronJob, UserSession 
 from app.database.db import DB
 from app.lib.exc import UserSessionExpired
@@ -14,11 +15,11 @@ class AuthSessionHelper:
         self.scheduler = BackgroundScheduler()
         self.scheduler.add_job(self.handle_expired_user_sessions, 'cron', minute='10,20,30,40,50,0')
 
-        # Start scheduler immediately
-        self.start_session_cron_job()
-
-        # Ensure scheduler stops when the app shuts down
-        atexit.register(self.shutdown_scheduler)
+        # Only start the scheduler if the RUN_SCHEDULER environment variable is "true"
+        if os.getenv("RUN_SCHEDULER", "false").lower() == "true":
+            self.start_session_cron_job()
+            # Ensure scheduler stops when the app shuts down
+            atexit.register(self.shutdown_scheduler)
 
     # Ensure the scheduler runs only once
     def start_session_cron_job(self):
@@ -101,15 +102,11 @@ class AuthSessionHelper:
         except NoResultFound:
             return False
 
-    # Session Cron Job - handles expired sessions on a schedule
-    def start_session_cron_job(self):
-        return self.scheduler.start()
-
     # Deletes expired sessions
     def handle_expired_user_sessions(self):
 
         self.cron_logger.info(f"Running session cleanup at {datetime.now(timezone.utc)}...")
-        
+
         db = DB()
         db.initialize()
         try:
