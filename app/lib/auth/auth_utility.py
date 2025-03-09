@@ -2,6 +2,7 @@ import bcrypt
 from fastapi import Request, Response
 from .auth_helpers import AuthSessionHelper, AuthTokenHelper
 from app.lib.exc import UserSessionExpired
+from datetime import datetime, timedelta, timezone
 
 class AuthUtility():
     def __init__(self):
@@ -41,12 +42,32 @@ class AuthUtility():
     # Create Guest Session
     def create_guest_session_and_token(self):
         guest_session = self.session.create_user_session()
+
+        # Use the expiration time from the database (already set to UTC)
+        # Ensure expiration_time is a string before conversion
+        expiration_time = guest_session['expiration_time']
+        
+        if isinstance(expiration_time, str):  # Convert if it's a string
+            expiration_time = datetime.fromisoformat(expiration_time)
+        
+        # Ensure it's timezone-aware
+        expiration_time = expiration_time.replace(tzinfo=timezone.utc)
+        
+        token_exp = int(expiration_time.timestamp())  # Convert to Unix timestamp
+
+
+
+        # Create expiration time
+        # expiration_time = datetime.now(timezone.utc) + timedelta(days=7)  # ✅ Explicitly set UTC
+        # token_exp = int(expiration_time.timestamp())  # Convert to Unix timestamp
+
         token_payload = {
             "session_type": "guest",
             "session_id": guest_session['session_id'],
             "start_time": guest_session['start_time'],
-            "exp": guest_session['expiration_time']            
+            "exp": token_exp            
         }
+        print(f"session expiration_time: {guest_session["expiration_time"]}")
         guest_session_token = self.token.generate_session_token(token_payload)
         return {"token": guest_session_token, "payload": token_payload}
 
@@ -95,7 +116,14 @@ class AuthUtility():
 
         # Only set a session cookie if a new session was created
         if guest_session_data:
-            response.set_cookie(key="session_cookie", value=session_token, httponly=True)
+            response.set_cookie(
+                key="session_cookie",
+                value=session_token,
+                httponly=True,
+                path="/",
+                samesite="Lax",
+                max_age=60*60*24*7  # 7 days
+            )
 
         return response
  

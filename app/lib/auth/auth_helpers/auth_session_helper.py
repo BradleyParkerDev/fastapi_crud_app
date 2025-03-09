@@ -76,7 +76,6 @@ class AuthSessionHelper:
             now = datetime.now(timezone.utc)  # Always use timezone-aware datetime
             is_expired = expiration_time < now
             
-            print(f"Current Time: {now}, Expiration Time: {expiration_time}, is_expired: {is_expired}")
             if is_expired:
                 db.session.delete(found_session)
                 db.session.commit()
