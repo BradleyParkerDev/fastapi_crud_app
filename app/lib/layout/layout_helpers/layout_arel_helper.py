@@ -25,7 +25,6 @@ class LayoutArelHelper():
     async def lifespan(self, app:FastAPI):
         await self.hotreload.startup()
 
-
         # ✅ Start cron job on app startup (if enabled)
         if os.getenv("RUN_SCHEDULER", "false").lower() == "true":
             self.cron = CronJobUtility()
