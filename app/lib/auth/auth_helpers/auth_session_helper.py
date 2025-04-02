@@ -1,37 +1,13 @@
-import os;
-from app.database.models import SessionCronJob, UserSession 
+from app.database.models import UserSession 
 from app.database.db import DB
 from app.lib.exc import UserSessionExpired
 from app.lib.logger import get_logger
 from sqlalchemy.exc import NoResultFound
-from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timezone
-import atexit
 
 class AuthSessionHelper:
     def __init__(self):
         self.user_logger = get_logger("user")
-        self.cron_logger = get_logger("cron")
-        self.scheduler = BackgroundScheduler()
-        self.scheduler.add_job(self.handle_expired_user_sessions, 'cron', minute='10,20,30,40,50,0')
-
-        # Only start the scheduler if the RUN_SCHEDULER environment variable is "true"
-        if os.getenv("RUN_SCHEDULER", "false").lower() == "true":
-            self.start_session_cron_job()
-            # Ensure scheduler stops when the app shuts down
-            atexit.register(self.shutdown_scheduler)
-
-    # Ensure the scheduler runs only once
-    def start_session_cron_job(self):
-        if not self.scheduler.running:
-            self.scheduler.start()
-            self.cron_logger.info("Session cleanup cron job started.")
-
-    # Shutdown the scheduler when app stops
-    def shutdown_scheduler(self):
-        if self.scheduler.running:
-            self.scheduler.shutdown()
-            self.cron_logger.info("Session cleanup cron job stopped.")
 
     # Create Session
     def create_user_session(self, user_id=None):
@@ -100,35 +76,3 @@ class AuthSessionHelper:
             return True
         except NoResultFound:
             return False
-
-    # Deletes expired sessions
-    def handle_expired_user_sessions(self):
-
-        self.cron_logger.info(f"Running session cleanup at {datetime.now(timezone.utc)}...")
-
-        db = DB()
-        db.initialize()
-        try:
-            now = datetime.now(timezone.utc)
-
-            # Find expired sessions
-            expired_sessions = db.session.query(UserSession).filter(UserSession.expiration_time < now).all()
-            num_deleted = len(expired_sessions)
-
-            if num_deleted > 0:
-                for session in expired_sessions:
-                    db.session.delete(session)
-                db.session.commit()
-
-            # Log the cron job execution
-            self.cron_logger.info(f"{num_deleted} sessions deleted!!!")
-
-            # Store in the database
-            cron_job = SessionCronJob(sessions_deleted=num_deleted)
-            db.session.add(cron_job)
-            db.session.commit()
-
-        except Exception as e:
-            self.cron_logger.error(f"Error running cron job: {e}")
-        finally:
-            db.close()

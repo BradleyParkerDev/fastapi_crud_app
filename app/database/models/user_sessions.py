@@ -11,7 +11,9 @@ class UserSession(Base):
     user_id = Column(pgUUID(as_uuid=True), ForeignKey('users.user_id',ondelete="CASCADE"), nullable=True)
     start_time = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     # expiration_time = Column(DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(days=7))
-    expiration_time = Column(DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(minutes=20))
+    # expiration_time = Column(DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(minutes=20))
+    expiration_time = Column(DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(minutes=2))
+
 
 
 

@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.cors import CORSMiddleware  
 from app.routes import WebRoutes, UserRoutes
-from app.lib import AuthUtility, LayoutUtility
+from app.lib import AuthUtility, CronJobUtility, LayoutUtility
 from starlette.routing import WebSocketRoute
 import uvicorn
 
